@@ -5,6 +5,7 @@
 package chessmanager;
 
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -16,17 +17,46 @@ public class BoardContainer extends java.util.Observable {
     private BoardModel currentBoard;
     private BoardModel start;
     private int totalnumber;
+    private String containerName;
+    private String fullcontName;
+    private Boolean changed;
+
+    
+    public void setChangedContainer(Boolean changed) {
+        this.changed = changed;
+        setChanged();
+        notifyObservers();
+    }
 
     public BoardContainer() {
         start = new BoardModel();
+        start.setNumber(0);
         currentBoard = start;
         totalnumber = 0;
+        changed = false;
     }
 
     /*
      * !!!Hidden getters and setters
      */
     // <editor-fold>
+    public String getFullcontName() {
+        return fullcontName;
+    }
+
+    public void updateFullcontName() {
+        this.fullcontName = containerName + ", Diagram " + currentBoard.getNumber() + " of " + totalnumber;
+    }
+
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+        updateFullcontName();
+    }
+
     public BoardModel getCurrentBoard() {
         return currentBoard;
     }
@@ -64,7 +94,7 @@ public class BoardContainer extends java.util.Observable {
     }
     // </editor-fold>
 
-    void fillContainer(ArrayList<String> maparray) {
+    public void fillContainer(ArrayList<String> maparray, String containerName) {
 
         mapArray = maparray;
 
@@ -94,8 +124,9 @@ public class BoardContainer extends java.util.Observable {
             newboard.setNumber(totalnumber);
             //  System.out.println(newboard.getCode() + " " + newboard.getName() + " " + newboard.getNumber() );
         }
-        currentBoard = start; // reset op begin
+        currentBoard = start; // reset op begin        
         nextMap(); //vat de eerste map
+        setContainerName(containerName);
         setChanged();
         notifyObservers();
         // System.out.println(totalnumber);
@@ -129,8 +160,119 @@ public class BoardContainer extends java.util.Observable {
             difference--;
         }
         if (changed) {
+            updateFullcontName();
             setChanged();
             notifyObservers();
+        }
+    }
+
+    Boolean isChanged() {
+        return changed;
+    }
+
+    void emptyContainer(String untitled) {
+        containerName = untitled;
+        fullcontName = untitled;
+        
+        insertBoard(true);
+        
+    }
+
+    public ArrayList<String> getAllBoards() {
+        BoardModel now = currentBoard;
+        currentBoard = start;
+        ArrayList<String> returnArray = new ArrayList<String>();
+        while (currentBoard.getNext() != null) {
+            currentBoard = currentBoard.getNext();
+            String file = currentBoard.getNewCode() + " " + currentBoard.getName();
+            returnArray.add(file);
+        }
+        currentBoard = now;
+        
+        return returnArray;
+    }
+
+    public void changeCode(String code) {
+        currentBoard.setNewCode(code);
+        setChangedContainer(true);
+    }
+
+    public void changeName(String name) {
+        currentBoard.setName(name);
+        setChangedContainer(true);;
+    }
+
+    public void revert() {
+        currentBoard.revert();
+        setChanged();
+        notifyObservers();
+    }
+
+    public void insertBoard(Boolean first) {
+        setTotalnumber(getTotalnumber() + 1);
+        BoardModel newboard = new BoardModel();        
+        if (currentBoard.getNext() != null) {
+            currentBoard.getNext().setPrevious(newboard);
+            newboard.setNumber(currentBoard.getNext().getNumber());
+            correctNumbersPlus();
+        } else {
+            newboard.setNumber(totalnumber);
+        }
+
+        newboard.setPrevious(currentBoard);
+        newboard.setNext(currentBoard.getNext());
+        currentBoard.setNext(newboard);
+        currentBoard = start.getNext();
+        if(!first)
+        {
+            updateFullcontName();
+            setChangedContainer(true);
+        }
+        else
+        {
+            setChanged();
+        notifyObservers();
+        }
+            
+    }
+
+    public void removeBoard() {
+        BoardModel nextOrPrevious = null;
+        if (currentBoard.getPrevious() != start) {
+            nextOrPrevious = currentBoard.getPrevious();
+        } else if (currentBoard.getNext() != null) {
+            nextOrPrevious = currentBoard.getNext();
+        } else {
+            JOptionPane.showMessageDialog(null, "You can't have less than 1 diagram");
+        }
+        if (nextOrPrevious != null) {
+            currentBoard.getPrevious().setNext(currentBoard.getNext());
+            if(currentBoard.getNext() != null)
+            {
+            currentBoard.getNext().setPrevious(currentBoard.getPrevious());
+            correctNumbersMinus();
+            }            
+            currentBoard = start.getNext();
+            setTotalnumber(getTotalnumber() - 1);
+        }       
+        updateFullcontName();
+        setChangedContainer(true);
+    }
+
+    private void correctNumbersMinus() {
+        BoardModel current = currentBoard;
+        while (current.getNext() != null) {
+            current = current.getNext();
+            current.setNumber((current.getNumber() - 1));
+        }
+    }
+
+    private void correctNumbersPlus() {
+        BoardModel current = currentBoard;
+        while (current.getNext() != null) {
+            current = current.getNext();
+            int number = current.getNumber();
+            current.setNumber((number + 1));
         }
     }
 }

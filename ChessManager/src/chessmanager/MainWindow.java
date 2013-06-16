@@ -4,11 +4,13 @@
  */
 package chessmanager;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentListener;
 import java.util.Observable;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,6 +20,7 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
 
     private FileIO IO;
     private BoardContainer myContainer;
+    public Boolean changed = false;
 
     /**
      * Creates new form MainWindow
@@ -26,14 +29,12 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         initComponents();
         initSettings();
         IO = io;
-
+        
     }
 
     private void initSettings() {
 
-        setDefaultCloseOperation(this.EXIT_ON_CLOSE);
-        this.setTitle("ChessManager");
-
+        setDefaultCloseOperation(this.EXIT_ON_CLOSE);   
         // Code om scherm te beginnen in het midden van het scherm/
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -43,8 +44,9 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         int y = (dim.height - h) / 2;
 
         this.setLocation(x, y);
-        setScrollbar(0);
-
+        setScrollbar(0);  
+        setResizable(false);
+        setBackground(Color.CYAN);
     }
 
     /**
@@ -74,8 +76,8 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         jTextField2 = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        board1 = new chessmanager.BoardView();
         jScrollBar1 = new javax.swing.JScrollBar();
+        boardView1 = new chessmanager.BoardView();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -92,18 +94,8 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
 
         jButton1.setText("Empty Board");
         jButton1.setFocusable(false);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
 
         jButton2.setText("Initial Position");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
 
         jTextField1.setFont(new java.awt.Font("Lucida Console", 0, 12)); // NOI18N
 
@@ -121,17 +113,6 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         jTextArea1.setText("No file selected");
         jScrollPane1.setViewportView(jTextArea1);
 
-        javax.swing.GroupLayout board1Layout = new javax.swing.GroupLayout(board1);
-        board1.setLayout(board1Layout);
-        board1Layout.setHorizontalGroup(
-            board1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 297, Short.MAX_VALUE)
-        );
-        board1Layout.setVerticalGroup(
-            board1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-
         jScrollBar1.setVisibleAmount(0);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -142,11 +123,11 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(board1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(boardView1, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE))
                         .addGap(6, 6, 6))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -161,12 +142,12 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(board1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addGap(18, 18, 18)
                         .addComponent(jButton2)
-                        .addGap(0, 188, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(boardView1, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -182,7 +163,7 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
 
         jMenu1.setText("File");
 
-        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, 0));
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem1.setText("New");
         jMenuItem1.setToolTipText("");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
@@ -192,7 +173,7 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         });
         jMenu1.add(jMenuItem1);
 
-        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, 0));
+        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem2.setText("Open...");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -201,7 +182,7 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         });
         jMenu1.add(jMenuItem2);
 
-        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, 0));
+        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem3.setText("Save");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -219,7 +200,7 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         });
         jMenu1.add(jMenuItem4);
 
-        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, 0));
+        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem5.setText("Revert");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -228,7 +209,7 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         });
         jMenu1.add(jMenuItem5);
 
-        jMenuItem6.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, 0));
+        jMenuItem6.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem6.setText("Quit");
         jMenuItem6.setToolTipText("");
         jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
@@ -242,11 +223,11 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
 
         jMenu2.setText("Edit");
 
-        jMenuItem7.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, 0));
+        jMenuItem7.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.ALT_MASK));
         jMenuItem7.setText("Add diagram");
         jMenu2.add(jMenuItem7);
 
-        jMenuItem8.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, 0));
+        jMenuItem8.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.ALT_MASK));
         jMenuItem8.setText("Delete diagram");
         jMenu2.add(jMenuItem8);
 
@@ -271,7 +252,18 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
     }// </editor-fold>//GEN-END:initComponents
 
     private void Openfile(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Openfile
-        IO.openFile();
+        if (changed) {
+                int dialogButton = JOptionPane.YES_NO_OPTION;
+                int dialogResult = JOptionPane.showConfirmDialog(null, "There are unsaved changes, are you sure?", "Open file", dialogButton);
+                if (dialogResult == 0) {
+                    IO.openFile();
+                } else {
+                    System.out.println("Cancel");
+                }
+            }
+            else
+                IO.openFile();
+        
     }//GEN-LAST:event_Openfile
 
     private void New(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_New
@@ -291,16 +283,15 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
     }//GEN-LAST:event_Revert
 
     private void Quit(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Quit
-        System.exit(0);
+       int dialogButton = JOptionPane.YES_NO_OPTION;
+       int dialogResult = JOptionPane.showConfirmDialog(this, "Are you sure you want to quit? \nall unsaved changes will be lost", "Quit? :.-( ",dialogButton);
+        if(dialogResult==0)
+            System.exit(0);
+        else
+            System.out.println("Cancel");
+        
+        
     }//GEN-LAST:event_Quit
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -338,7 +329,7 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private chessmanager.BoardView board1;
+    private chessmanager.BoardView boardView1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JMenu jMenu1;
@@ -365,10 +356,14 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
     public void update(Observable o, Object obj) {
         System.out.println("aangeroepen");
         if (o == myContainer) {
-            setScrollbar((myContainer.getTotalnumber() - 1) );
-            setErrorLabel(myContainer.getCurrentBoard().getMessage());
-            setNameLabel(myContainer.getCurrentBoard().getName());
-            setCodeLabel(myContainer.getCurrentBoard().getCode());
+            BoardModel myBoard = myContainer.getCurrentBoard();
+            setScrollbar((myContainer.getTotalnumber() - 1) );            
+            setErrorLabel(myBoard.getMessage());
+            setNameLabel(myBoard.getName());
+            setCodeLabel(myBoard.getNewCode());
+            setBoard(myBoard.getNewCode(), myBoard.isError(), myBoard.getErrorAt());            
+            changed = myContainer.isChanged();
+            setHeader(myContainer.getFullcontName());
         }
     }
 
@@ -398,5 +393,80 @@ public class MainWindow extends javax.swing.JFrame implements java.util.Observer
 
     public void addscrollListener(AdjustmentListener listen) {
         jScrollBar1.addAdjustmentListener(listen);
+    }
+    
+    public void addEmptyfieldlistener(ActionListener listen) {
+        jButton1.addActionListener(listen);
+    }
+    
+    public void addBeginsetup(ActionListener listen) {
+        jButton2.addActionListener(listen);
+    }
+    
+    public void addCodeListener(ActionListener listen){
+        jTextField2.addActionListener(listen);
+    }
+    
+    public void addRevertListener(ActionListener listen)
+    {
+        jMenuItem5.addActionListener(listen);
+    }
+    
+    public void addNewContainerListener(ActionListener listen)
+    {
+        jMenuItem1.addActionListener(listen);
+    }
+    
+    public void addSaveListener(ActionListener listen)
+    {
+        jMenuItem3.addActionListener(listen);
+    }
+    
+    public void addSaveAsListener(ActionListener listen)
+    {
+        jMenuItem4.addActionListener(listen);
+    }
+    
+    public void addNewDiagramListener(ActionListener listen)
+    {
+        jMenuItem7.addActionListener(listen);
+    }
+    
+    public void addDeleteDiagramListener(ActionListener listen)
+    {
+        jMenuItem8.addActionListener(listen);
+    }
+    
+    public void addNameListener(ActionListener listen){
+        jTextField1.addActionListener(listen);
+    }
+
+    private void setBoard(String newCode, boolean error, int errorAt) {
+        boardView1.removeAll();
+        boardView1.updateUI();
+        boardView1.drawBoard(newCode, error, errorAt);     
+        
+        revalidate();
+    }
+
+    private void setBoardPictureLoc(String d) {
+        boardView1.setPictureLoc(d);
+    }
+
+    private void setHeader(String fullcontName) {
+        String changeMade = "";          
+        if(changed)
+        {
+            changeMade = "* ";
+        }
+        this.setTitle(changeMade + fullcontName);
+    }
+
+    String getBoardName() {
+        return jTextField1.getText();
+    }
+
+    String getBoardCode() {
+        return jTextField2.getText();
     }
 }

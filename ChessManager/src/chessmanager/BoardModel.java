@@ -17,11 +17,16 @@ public class BoardModel extends java.util.Observable {
     private String message;
     private String name;
     private int number;
+    
     private BoardModel next;
     private BoardModel previous;
+    private boolean hasError;
+    private int errorAt;
 
     public BoardModel() {
-        message = "Correct FEN-position";
+        message = "Correct FEN-position";   
+        setCode("8/8/8/8/8/8/8/8");
+        setName("");      
     }
 
     /**
@@ -34,14 +39,14 @@ public class BoardModel extends java.util.Observable {
 
     public void setNewCode(String newCode) {
         this.newCode = newCode;
+        
         try {
             validateCode(newCode);
+            setMessage("Correct FEN-position");
         } catch (FENException ex) {
             setMessage(ex.getError());
-        }
-
-        setChanged();
-        notifyObservers();
+            hasError = true;
+        }        
     }
 
     public int getNumber() {
@@ -93,11 +98,28 @@ public class BoardModel extends java.util.Observable {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public boolean isError() {
+        return hasError;
+    }
+
+    public void setError(boolean error) {
+        this.hasError = error;
+    }
+    
+    public int getErrorAt() {
+        return errorAt;
+    }
+
+    public void setErrorAt(int errorAt) {
+        this.errorAt = errorAt;
+    }
     // </editor-fold>
 
     private void validateCode(String newCode) throws FENException {
         String errorArrow = "^";
         String error = "";
+        hasError = false;
         Boolean approved = true;
 
         int officialSize = 71;
@@ -199,9 +221,15 @@ public class BoardModel extends java.util.Observable {
                 String space = " ";
                 errorArrow = space + errorArrow;
                 p++;
+                
             }
+            errorAt = p;
             throw new FENException(newCode + "\n" + errorArrow + "\n" + error);
         }
 
+    }
+
+    public void revert() {
+         newCode = code;
     }
 }

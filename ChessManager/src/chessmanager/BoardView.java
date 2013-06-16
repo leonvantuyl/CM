@@ -4,18 +4,37 @@
  */
 package chessmanager;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+
 /**
  *
  * @author Leon van Tuijl
  */
 public class BoardView extends javax.swing.JPanel {
 
+    private String pictureLoc;
+    private int fieldcount;
+    private int rowcount;
+    
+
+    public String getPictureLoc() {
+        return pictureLoc;
+    }
+
+    public void setPictureLoc(String map) {
+       // this.pictureLoc = (System.getProperty("user.dir") + "\\images\\" + pictureLoc + "\\");
+        this.pictureLoc = ("images\\" + map + "\\");
+    }
+
     /**
      * Creates new form Board
      */
     public BoardView() {
         initComponents();
-    }
+        setPictureLoc("3d");        
+    }  
+   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -26,17 +45,127 @@ public class BoardView extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+        setLayout(new java.awt.GridLayout(8, 8));
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+
+    public void drawBoard(String code, Boolean containsError, int errorAt) {
+        char[] array = code.toCharArray();
+        int size = array.length;
+        int MaxSize = 64;
+        int i = 0;
+        fieldcount = 0;
+        rowcount = 0;
+
+        boolean error = false; //if true dan stoppen met toevoegen van iconen en gewoon legen velden maken.
+        boolean white = true; //veld begin kleur;
+        while (i < MaxSize) {
+            
+            if(i == (errorAt - 1) && containsError)
+            {
+                error = true;
+            }
+
+
+            String fieldname = "";
+            Boolean set = false;
+
+            if (!error && (i < size)) {
+                char curChar = array[i];
+                switch (curChar) {
+                    case 'r':
+                    case 'n':
+                    case 'b':
+                    case 'q':
+                    case 'k':
+                    case 'p':
+                        fieldname =  "b" + curChar;
+                        break;
+
+                    case 'R':
+                    case 'N':
+                    case 'B':
+                    case 'Q':
+                    case 'K':
+                    case 'P':
+                        fieldname = ("w" + curChar).toLowerCase();
+                        break;
+
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                        fieldname = "sq";
+                        white = drawField(white, fieldname, Character.getNumericValue(curChar));
+                        set = true;
+                        MaxSize -= (Character.getNumericValue(curChar) -1);
+                        break;
+
+                    case '/':
+                        MaxSize++;
+                        set = true;
+                        break;
+
+                    default:
+                        MaxSize++;
+                        error = true;
+                        set = true;
+                        break;
+                }
+            } else {
+                fieldname = "sq"; //leeg veld;
+            }
+
+            if(!set)
+            {
+            white = drawField(white, fieldname, 1);
+            }
+            
+            if(fieldcount == 8)
+            {
+                rowcount++;
+                if(rowcount == 1)
+                {
+                    white = false;
+                }
+                if(rowcount == 2)
+                {
+                    white = true;
+                    rowcount = 0;
+                }
+                fieldcount = 0;
+            }
+
+            i++;
+        }
+
+    }
+
+    public Boolean drawField(Boolean White, String fieldname, int times) {
+        Boolean white = White;
+        int i = 0;
+        String drawname = "";        
+        while (i < times) {
+            fieldcount ++;
+            if (white) {
+                drawname = fieldname + "w";
+                white = false;
+            } else {
+                drawname = fieldname + "b";
+                white = true;
+            }           
+
+            //voeg label toe                  
+            JLabel imagelabel = new JLabel(new ImageIcon(pictureLoc + drawname + ".gif"));         
+            add(imagelabel);
+            i++;
+        }
+        return white;
+    }
 }
